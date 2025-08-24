@@ -15,6 +15,7 @@ SMALL_CIRCLE_RADIUS: int = 12
 BIG_CIRCLE_RADIUS: int = 150
 ICON_HEIGHT: int = 24
 TAB_ICON_HEIGHT: int = 12
+BUTTON_ICON_HEIGHT: int = 15
 SHADOW_OFFSET: int = 10
 
 # Files
@@ -31,19 +32,23 @@ filenames_path: str = f"{directory}/filenames.txt"
 _all_icons: dict[tuple[str, bool], ImageTk.PhotoImage] = {}  # otherwise icons from geticon() get garbage-collected
 
 
-def geticon(icon_path: str, is_tab: bool = False) -> ImageTk.PhotoImage:
+def geticon(icon_path: str, is_tab: bool = False, height: int | None = None) -> ImageTk.PhotoImage:
     """
     Makes a PhotoImage to use as an icon
     :param icon_path: path to icon
     :param is_tab: smaller icon size to use as a Notebook tab image
+    :param height: icon height (overrides is_tab)
     :return: PhotoImage to use as an icon
     """
     if _all_icons.get((icon_path, is_tab), None) is not None:
         return _all_icons[(icon_path, is_tab)]
-    if is_tab:
-        height: int = TAB_ICON_HEIGHT
-    else:
-        height: int = ICON_HEIGHT
+
+    if height is None:
+        if is_tab:
+            height: int = TAB_ICON_HEIGHT
+        else:
+            height: int = ICON_HEIGHT
+
     icon: PIL.ImageFile.ImageFile = Image.open(icon_path)
     icon_ratio: float = icon.width / icon.height
     icon: Image.Image = icon.resize((int(height * icon_ratio), height), Image.Resampling.LANCZOS)
@@ -882,13 +887,14 @@ class Editor(Frame):
                                                                                             self.iconpathvar.get()))
                                        )
         iconchooser.grid(row=1, column=2, sticky="n")
-        Button(iconchooser.buttonframe, image=geticon(delete_path, True), style="Red.TButton",
+        Button(iconchooser.buttonframe, image=geticon(delete_path, height=BUTTON_ICON_HEIGHT), style="Red.TButton",
                command=lambda: self.iconpathvar.set("")).grid(row=0, column=1, sticky="w")
         self.compoundvar: StringVar = StringVar(value=self.master.compound)
         self.compoundvar.trace_add("write", lambda a, b, c: self.master.updatetab(compound=self.compoundvar.get()))
         Labelcombobox(iconchooser.buttonframe, text="Compound", values=["left", "right", "top", "bottom", "none"],
                       textvariable=self.compoundvar).grid(row=1, column=0, columnspan=2)
-        Button(self, text="Delete", style="Red.TButton", command=self.master.delete).grid(row=3, column=2, sticky="sw")
+        Button(self, text="Delete", image=geticon(delete_path, True), compound="left",
+               style="Red.TButton", command=self.master.delete).grid(row=3, column=2, sticky="es")
 
     def load(self, path: str) -> None:
         """
