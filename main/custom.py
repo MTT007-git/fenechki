@@ -935,7 +935,7 @@ class Custom(Frame):
         self.canvas_width: int = 0
         self.canvas_height: int = 0
         self.threads: int = 13
-        self.calc_size()
+        self.calc_size(False)
 
         self.color: str | tuple[int, int, int] = "#ff0000"
         self.alt_color: str | tuple[int, int, int] = "#ffffff"
@@ -1027,17 +1027,19 @@ class Custom(Frame):
             self.compound = compound
         self.toplevel.updatetab(self)
 
-    def calc_size(self) -> None:
+    def calc_size(self, update_canvas: bool = True) -> None:
         """
         Update the canvas size
+        :param update_canvas: update the canvas or just calculate the size
         :return: None
         """
         self.canvas_width = ((2 * (self.cols - 1) - 1) * DIAMOND_WIDTH + 2 * DIAMOND_WIDTH +
                              SMALL_CIRCLE_RADIUS * (self.threads + 1) * 2 + 40 + SHADOW_OFFSET * 2)
         self.canvas_height = (2 * (self.rows - 1) - 1) * DIAMOND_HEIGHT + 2 * DIAMOND_HEIGHT + SHADOW_OFFSET * 2
 
-        self.canvas.config(width=self.canvas_width, height=self.canvas_height)
-        self.toplevel.set_geometry()
+        if update_canvas:
+            self.canvas.config(width=self.canvas_width, height=self.canvas_height)
+            self.toplevel.set_geometry()
 
     def choose_color(self) -> None:
         """
@@ -1490,10 +1492,10 @@ class Window(Tk):
         :return: None
         """
         idx: int = self.tabs.index(obj)
-        if obj.icon:
+        if obj.icon is not None:
             self.notebook.tab(idx, text=obj.name, image=obj.icon, compound=obj.compound)
         else:
-            self.notebook.tab(idx, text=obj.name)
+            self.notebook.tab(idx, text=obj.name, image="")
 
 
 if __name__ == "__main__":
