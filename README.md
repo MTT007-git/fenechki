@@ -1,4 +1,4 @@
-A friendship braclet weaving simulator.<br>
+A friendship bracelet weaving simulator.<br>
 Supports both flat and round friendship bracelets.<br>
 Works by drawing cells - initial threads and finished pattern, and conneting them in groups - when you fill one cell, all cells within the same group also fill.
 <br><br>
